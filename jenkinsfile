@@ -12,7 +12,7 @@ environment{
 stages{
     stage('checkout'){
         steps{
-            git branch: 'test', url:'https://github.com/shorya1104/env.git'
+            git branch: 'main', url:'https://github.com/shorya1104/envrepo.git'
         }
     }
     stage('infrastructure'){
@@ -25,42 +25,45 @@ stages{
     }
     stage('build and serve'){
         steps{
-            sh '''
-                cd client
-                npm i
-                npm run build
-                mv build/ ../server
-            '''
+            dir('client'){
+            sh 'ls'
+            sh 'npm install --force'
+            sh 'npm run build'
+            sh 'mv build/ ../server'
+            }
         }
     }
     stage('prepare db'){
         steps{
             sh '''
-                sed -i "s|#dbusername#|$DB_USRNM|g" /u01/jenkins/workspace/envtest/my_app/server/.env
-                sed -i "s|#dbpassword#|$DB_PSSWD|g" /u01/jenkins/workspace/envtest/my_app/server/.env
-                sed -i "s|#dbname#|$DB_SCHEMA|g" /u01/jenkins/workspace/envtest/my_app/server/.env
-                sed -i "s|#dburl#|$DB_URL|g" /u01/jenkins/workspace/envtest/my_app/server/.env
+                sed -i "s|#dbusername#|$DB_USRNM|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+                sed -i "s|#dbpassword#|$DB_PSSWD|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+                sed -i "s|#dbname#|$DB_SCHEMA|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+                sed -i "s|#dburl#|$DB_URL|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
             '''
         }
     }
     stage('package'){
         steps{
+            dir('server'){
             sh '''
-                cd my_app/server
                 npm install
                 npm pack 
                 mkdir test
                 cp *.tgz test
             '''
+            }
         }
     }
     stage('push artifact in repo'){
         steps{
-            git branch: 'test', url:'https://github.com/shorya1104/env.git'
-            sh 'cd my_app/server/test'
+            git branch: 'test', url:'https://github.com/shorya1104/envrepo.git'
+            sh 'cd ${workspace}/server/test'
+            sh 'git init'
             sh 'git add --all'
             sh 'git commit -m "push artfact in repo"'
-            sh ' git push origin test'
+            sh 'git branch -M test'
+            sh ' git push -u origin test'
         }
     }
   }

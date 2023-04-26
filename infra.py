@@ -1,7 +1,7 @@
 import subprocess
 def check_node_version():
     try:
-        node_version = subprocess.check_output(["node", "-v"]).decode("utf-8").strip()
+        node_version = subprocess.check_output(['which', 'docker']).decode("utf-8").strip()
         print(f"Node.js version {node_version} already installed.")
     except subprocess.CalledProcessError:
         print("Node.js is not installed. Installing Node.js now...")
