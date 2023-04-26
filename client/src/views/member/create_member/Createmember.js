@@ -31,6 +31,11 @@ const Createmember = () => {
     const [visaFile, setVisaFile]   = useState('');
     const [insurance, setInsurance] = useState('');
 
+    const [passportName, setPassportName]   = useState();
+    const [emiratesName, setEmiratesName]   = useState('');
+    const [visaFileName, setVisaFileName]   = useState('');
+    const [insuranceName, setInsuranceName] = useState('');
+
     // useEffect(() => {
     //     window.scrollTo(5, 0)
     //   },)
@@ -51,16 +56,8 @@ const Createmember = () => {
         passport              : '',
         emirates              : '',
         visa_file             : '',
-        insurance             : '',
+        insurance             : '',  //emirates_expiry_date
     }
-    // const validationSchema = Yup.object().shape({
-    //     first_name     : Yup.string().required("First name is required"),
-    //     last_name      : Yup.string().required("Last name is required"),
-    //     email          : Yup.string().required("Email is required"),
-    //     official_email : Yup.string().required("Official Email is required"),
-    //     designation    : Yup.string().required("Designation is required"),
-    //     work_type      : Yup.string().required("Work type is required"),
-    // });
     const errorReset = (errors) =>{
         window.scrollTo(1, 1)
         setTimeout(() => {
@@ -87,6 +84,7 @@ const Createmember = () => {
     const showError = (key, msg) =>{
         
         errors[key]  = msg;
+        console.log(errors);
     }
     const onSubmit = (values) => {
         
@@ -106,46 +104,19 @@ const Createmember = () => {
                 errrorVal++;
             }
         }
-        if(mobile_no == ''){
-            showError('mobile_no', 'Mobile no is required');
-            errrorVal++;
+        const validator  = {
+            variables : [mobile_no, official_mobile_no, passportExpiry, emiratesExpiry, visaExpiry, insuranceExpiry, passport, emirates, visaFile, insurance],
+
+            msgKey : ['mobile_no', 'official_mobile_no', 'passport_expiry_date', 'emirates_expiry_date', 'visa_expiry_date', 'insurance_expiry_date', 'passport', 'emirates', 'visa_file', 'insurance'],
+
+            msgdata : [ 'Mobile no is required', 'Offcial Mobile no is required', 'Passport expiry date is required', 'Emirates expiry date is required', 'Visa expiry date is required', 'Insurance expiry date is required', 'Passport file is required', 'Emirates Id file is required', 'Visa file is required', 'Insurance file is required' ]
         }
-        if(official_mobile_no == ''){
-            showError('official_mobile_no', 'Offcial Mobile no is required');
-            errrorVal++;
-        }
-        if(passportExpiry == ''){
-            showError('passport_expiry_date', 'Passport expiry date is required');
-            errrorVal++;
-        }
-        if(emiratesExpiry == ''){
-            showError('emirates_expiry_date', 'Emirates expiry date is required');
-            errrorVal++;
-        }
-        if(visaExpiry == ''){
-            showError('visa_expiry_date', 'Visa expiry date is required');
-            errrorVal++;
-        }
-        if(insuranceExpiry == ''){
-            showError('insurance_expiry_date', 'Insurance expiry date is required');
-            errrorVal++;
-        }
-        if(passport.length == 0){
-            showError('passport', 'Passport file is required');
-            errrorVal++;
-        }
-        if(emirates.length == 0){
-            showError('emirates', 'Emirates Id file is required');
-            errrorVal++;
-        }
-        if(visaFile.length == 0){
-            showError('visa_file', 'Visa file is required');
-            errrorVal++;
-        }
-        if(insurance.length == 0){
-            showError('insurance', 'Insurance file is required');
-            errrorVal++;
-        }
+        validator.variables.forEach( (element, index) => {
+            if(element == '' || element.length == 0){
+                showError(validator.msgKey[index], validator.msgdata[index]);
+                errrorVal++;
+            }
+        });
         if(errrorVal > 0){
             errorReset(errors);
             return false ;
@@ -200,30 +171,54 @@ const Createmember = () => {
                
                 result.errObj.forEach(function (arrayItem, index) {
                     for (const prop in arrayItem) {
-                        
+                        toast.error(arrayItem[prop]);
                         showError(prop, arrayItem[prop]);
                     }
                 });
                 setTimeout(() => { 
                     errorReset(errors);
-                }, 2000);
+                }, 5000);
             }
         });
     };
-    const onFileChange = (event ) => {
+    const getFileNames = (files) => {
         
+        let filesName = [];
+        for (var k = 0; k < files.length; k++){
+            filesName.push(<>
+                <div class='file__value file_'>
+                    <div class='file__value--text'>{files[k].name}</div>
+                    {/* <div class='file__value--remove' ></div>  */}
+                </div>
+            </>);
+        }
+        return filesName;
+    }
+    const onFileChange = (event ) => {
+        if(event.target.files.length > 2){
+            toast.error('please select only 2 files');
+            return;
+        }
         if(event.target.name == 'passport'){
             setPassport(event.target.files);
+            setPassportName( getFileNames(event.target.files) );
+            
         }
         if(event.target.name == 'emirates'){
             setEmirates(event.target.files);
+            setEmiratesName(getFileNames(event.target.files) )
         }
         if(event.target.name == 'visa_file'){
             setVisaFile(event.target.files);
+            setVisaFileName(getFileNames(event.target.files) )
         }
         if(event.target.name == 'insurance'){
             setInsurance(event.target.files);
+            setInsuranceName(getFileNames(event.target.files) )
         }
+    }
+    const back = () => {
+        history.push('/member/member_list');
     }
     const formik = useFormik({ initialValues, onSubmit }); // validationSchema,
     const { handleSubmit, handleChange, values, touched, errors } = formik;
@@ -309,28 +304,32 @@ const Createmember = () => {
                                     <Col lg="4" >
                                         <Form.Label> Passport Expiry </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={passportExpiry} onChange={(date) => setPassportExpiry(date)} minDate={new Date()} name="passportExpiry" />
+                                            <DatePicker className={"form-control"} selected={passportExpiry} onChange={(date) => setPassportExpiry(date)} name="passportExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.passport_expiry_date && touched.passport_expiry_date && <div className="d-block invalid-tooltip" >{errors.passport_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4" >
                                         <Form.Label> Emirates Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={emiratesExpiry} onChange={(date) => setEmiratesExpiry(date)} name="emiratesExpiry" />
+                                            <DatePicker className={"form-control"} selected={emiratesExpiry} onChange={(date) => setEmiratesExpiry(date)} name="emiratesExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.emirates_expiry_date && touched.emirates_expiry_date && <div className="d-block invalid-tooltip" >{errors.emirates_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4">
                                         <Form.Label> Visa Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={visaExpiry} onChange={(date) => setVisaExpiry(date)} name="visaExpiry" />
+                                            <DatePicker className={"form-control"} selected={visaExpiry} onChange={(date) => setVisaExpiry(date)} name="visaExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.visa_expiry_date && touched.visa_expiry_date && <div className="d-block invalid-tooltip" >{errors.visa_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4">
                                         <Form.Label> Insurance Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={insuranceExpiry} onChange={(date) => setInsuranceExpiry(date)} name="insuranceExpiry" />
+                                            <DatePicker className={"form-control"} selected={insuranceExpiry} onChange={(date) => setInsuranceExpiry(date)} name="insuranceExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.insurance_expiry_date && touched.insurance_expiry_date && <div className="d-block invalid-tooltip" >{errors.insurance_expiry_date}</div> }
                                         </div>
                                     </Col>
@@ -348,6 +347,7 @@ const Createmember = () => {
                                                             Add Files
                                                         </label>
                                                     </div>
+                                                    {passportName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.passport && touched.passport && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.passport}</div> }
@@ -364,6 +364,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="emirates" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="emirates" onChange={onFileChange} />
                                                         <label className="file__input--label" for="emirates" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {emiratesName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.emirates && touched.emirates && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.emirates}</div> }
@@ -380,6 +381,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="visa_file" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="visa_file" onChange={onFileChange} />
                                                         <label className="file__input--label" for="visa_file" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {visaFileName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.visa_file && touched.visa_file && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.visa_file}</div> }
@@ -396,6 +398,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="insurance" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="insurance" onChange={onFileChange} />
                                                         <label className="file__input--label" for="insurance" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {insuranceName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.insurance && touched.insurance && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.insurance}</div> }
@@ -403,7 +406,7 @@ const Createmember = () => {
                                         </div>
                                     </Col>
                                     <Col lg="6" style={{ width : "100%", display : "flex", justifyContent : "center", alignItems : "center", marginTop : "3rem", }} >
-                                        <Button className="btn-icon btn-icon-end" variant="primary" type="reset" >
+                                        <Button className="btn-icon btn-icon-end" type="reset" onClick={back}>
                                             Cancel <CsLineIcons icon="chevron-right" />
                                         </Button> &nbsp;&nbsp;&nbsp;&nbsp;
                                         <Button className="btn-icon btn-icon-end" variant="primary" type="submit"  >

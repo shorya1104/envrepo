@@ -24,7 +24,7 @@
     import CsLineIcons from "cs-line-icons/CsLineIcons";
 
     import moment from "moment";
-    import { MemberDetails, memberAllotedHistory} from "@mock-api/data/datatable";
+    import { postRequest } from "@mock-api/data/datatable";
 
     const MemberInfo = () => {
         let { id } = useParams();
@@ -61,24 +61,24 @@
         }
 
         React.useEffect(() => {
-            MemberDetails({ memberId : id }, (res) => {
+            postRequest(`/memberDetails`, { memberId : id }, (res) => {
                
-                SetDetails(res.data.result);
+                SetDetails(res.result);
 
-                let passportArr  = res.data.result.passport.split('*');
-                let emiratesArr  = res.data.result.emirates_id.split('*');
-                let visaArr      = res.data.result.visa_file.split('*');
-                let insuranceArr = res.data.result.insurance_file.split('*');
+                let passportArr  = res.result.passport.split('*');
+                let emiratesArr  = res.result.emirates_id.split('*');
+                let visaArr      = res.result.visa_file.split('*');
+                let insuranceArr = res.result.insurance_file.split('*');
 
                 SetPassportEXT( passportArr[0].split('.').pop() ) ; 
                 SetEmiratesEXT( emiratesArr[0].split('.').pop() ) ;
                 SetVisaEXT( visaArr[0].split('.').pop() ) ;
                 SetInsuranceEXT( insuranceArr[0].split('.').pop() ) ;
             });
-            memberAllotedHistory({ memberId : id }, (res) => {
+            postRequest(`/memberAllotedHistory`, { memberId : id }, (res) => {
                
-                console.log('asdasd', res.data.result);
-                SetHistoryData(res.data.result);
+                console.log('asdasd', res.result); 
+                SetHistoryData(res.result);
             });
             //
         }, []);

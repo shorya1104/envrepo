@@ -4,17 +4,15 @@
     // export const SERVICE_URL = "/app";
     export const IS_DEMO              = sessionStorage.getItem("isLogin") === "true" ? true : false;
     export const IS_AUTH_GUARD_ACTIVE = true;
-    //export const SERVICE_URL          = "http://localhost:8080/api/v1"; set PORT=3030 && 
+    //export const SERVICE_URL          = "http://localhost:8080/api/v1"; 
     export const SERVICE_URL = "https://env.shunyaekai.com/api/v1";
     export const USE_MULTI_LANGUAGE = false;
-    export const SocketIo = io('https://env.shunyaekai.com',{
+    export const SocketIo = io('https://env.shunyaekai.com', {
         reconnection         : true,
         reconnectionDelay    : 1000,
         reconnectionDelayMax : 5000,
         reconnectionAttempts : 99999
     });
-    // export const SocketIo = io(`ws://localhost:8000/`);
-    // For detailed information: https://github.com/nfl/react-helmet#reference-guide
     export const REACT_HELMET_PROPS = {
         defaultTitle  : "ENV Plus",
         titleTemplate : "ENV Plus",

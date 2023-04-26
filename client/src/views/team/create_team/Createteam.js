@@ -2,31 +2,28 @@
 import React, { useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
 import Select from "react-select";
-import { Row, Col, Button, Form, Card, Modal, } from "react-bootstrap";
+import { Row, Col, Button, Form, Card, } from "react-bootstrap"; //Modal, 
 import CsLineIcons from "cs-line-icons/CsLineIcons";
-import moment from "moment";
+//import moment from "moment";
 import { toast } from "react-toastify"
-import * as Yup from "yup";
+//import * as Yup from "yup";
 import { useFormik } from "formik";
-import { AddTeam, ListMember, ListAreaService } from "../../../@mock-api/data/datatable";
-import { DEFAULT_USER } from "config";
+import { postRequest } from "../../../@mock-api/data/datatable";
+// import { DEFAULT_USER } from "config";
 
 const Createteam = () => {
     // Popup Code start from here
-    const history = useHistory()
-    // Popup Code End from here
-    const newdate = moment().format("L");
+    const history = useHistory();
     const title   = "Add Team";
 
     const [memberList, setMemberList]       = useState();
     const [memberOptions, setMemberOptions] = useState([]);
-    //const [listData, setListData]           = useState([]);
-    const [areaOptions, setAreaOptions] = useState([]);
+    const [areaOptions, setAreaOptions]     = useState([]);
 
     const initialValues = {
-        userid          : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
+        userid          : sessionStorage.getItem("user_id"),
         team_name       : '', 
-        location_id   : '',
+        location_id     : '',
         members         : '',
         team_leader     : '',
         team_leader_id  : '',
@@ -35,19 +32,19 @@ const Createteam = () => {
     };
     React.useEffect(() => {
         
-        ListMember({ userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id }, (res) => {
-            setMemberList(res.data.dataList.data);
+        postRequest(`/memberList`, { userid : sessionStorage.getItem("user_id") }, (res) => {
+            setMemberList(res.dataList.data);
             
             let memberOpt = [];
-            res.data.dataList.data.forEach(element => {
+            res.dataList.data.forEach(element => {
                 memberOpt.push( { value: element.member_id, label: element.first_name+' '+ element.last_name}, );
             });
             setMemberOptions(memberOpt)
         });
-        ListAreaService({ userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id }, (res) => {
+        postRequest(`/areaList`, { userid : sessionStorage.getItem("user_id") }, (res) => {
          
             let areaOpt = [];
-            res.data.result.areaList.forEach(element => {
+            res.result.areaList.forEach(element => {
                 areaOpt.push( { value: element.AreaNumber, label: element.AreaName}, );
             });
             setAreaOptions(areaOpt);
@@ -91,7 +88,7 @@ const Createteam = () => {
             errorReset(errors);
             return false ;
         }
-        AddTeam(values, (result) => {
+        postRequest(`/add-team`, values, (result) => {
             (result.success == true) ? toast.success(result.message) : toast.error(result.message);
             if (result.success == true) {
                 formik.resetForm();
@@ -102,6 +99,9 @@ const Createteam = () => {
         });
         
     };
+    const back = () => {
+        history.push('/team/team_list');
+    }
     const formik = useFormik({ initialValues, onSubmit }); //validationSchema,
     const { handleSubmit, handleChange, values, touched, errors } = formik;
     let index = 0;
@@ -213,7 +213,7 @@ const Createteam = () => {
                                         </div>
                                     </Col>
                                     <Col lg="6" style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "3rem", }} >
-                                        <Button className="btn-icon btn-icon-end" variant="primary" type="reset" >
+                                        <Button className="btn-icon btn-icon-end" onClick={back} type="reset" >
                                             Cancel <CsLineIcons icon="chevron-right" />
                                         </Button> &nbsp;&nbsp;&nbsp;&nbsp;
                                         <Button className="btn-icon btn-icon-end" variant="primary" type="submit">

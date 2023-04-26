@@ -2,7 +2,7 @@
   "name": "acorn-react",
   "version": "1.0.1",
   "private": true,
-  "proxy": "https://env.shunyaekai.com",
+  "proxy": "https://demoenv.shunyaekai.com/",
   "dependencies": {
     "@chakra-ui/react": "^2.4.3",
     "@emotion/react": "^11.10.5",

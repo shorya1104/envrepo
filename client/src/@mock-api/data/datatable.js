@@ -171,7 +171,8 @@
             // console.error(error);
         }
     }
-    // Member MOdule function 
+    // Code created by Ravv
+    // Member Module function 
     const AddMember = async (requestData, callback) => {
         try {
             const response = await axios({
@@ -185,7 +186,6 @@
             return callback(response.data);
         } catch (error) {
             return callback(error);;
-            // console.error(error);
         }
     }
     const ListMember = async (requestData, callback) => {
@@ -197,15 +197,7 @@
             // console.error(error);
         }
     } 
-    const MemberDetails = async (requestData, callback) => {
-        try {
-            const response = await axios.post(`/memberDetails`, requestData);
-            return callback(response);
-        } catch (error) {
-            throw error;
-            // console.error(error);
-        }
-    } 
+    
     const EditMember = async (requestData, callback) => {
         try {
             
@@ -222,71 +214,53 @@
             return callback(error);;
         }
     }
-    const AddTeam = async (requestData, callback) => {
+     
+    const postRequest = async (URL, requestData, callback) => {
         try {
-            const response = await axios({
-                method  : "POST",
-                url     : "/add-team",
-                data    : requestData,
-            });
+            const response = await axios.post(URL, requestData);
             return callback(response.data);
         } catch (error) {
-            return callback(error);
-            // console.error(error);
-        }
-    }
-    const TeamListData = async (requestData, callback) => {
-        try {
-            const response = await axios.post(`/teamList`, requestData);
-            return callback(response);
-        } catch (error) {
             throw error;
         }
     } 
-    const TeamDetails = async (requestData, callback) => {
-        try {
-            const response = await axios.post(`/teamDetails`, requestData);
-            return callback(response);
-        } catch (error) {
-            throw error;
-            // console.error(error);
+
+    const sendWhstpMsg = async (mobile, message, callback) => {
+        const msgObj =  {
+            "messaging_product" : "whatsapp",
+            "to"                : [ mobile ],
+            "type"              : "template",
+            "template" : {
+                "name"       : "currentfinal",
+                "language"   : { "code" : "en" },
+                "components" : [
+                    {
+                        "type"       : "body",
+                        "parameters" : [
+                            {
+                                "type" : "text",
+                                "text" : message
+                            },{
+                                "type" : "text",
+                                "text" : 25
+                            }
+                        ]
+                    }
+                ]
+            }
         }
-    } 
-    const teamAllotedHistory = async (requestData, callback) => {
         try {
-            const response = await axios.post(`/teamAllotedHistory`, requestData);
-            return callback(response);
-        } catch (error) {
-            throw error;
-        }
-    } 
-    const TeamMembers = async (requestData, callback) => {
-        try {
-            const response = await axios.post(`/teamMembers`, requestData);
-            return callback(response);
-        } catch (error) {
-            throw error;
-        }
-    } 
-    const EditTeam = async (requestData, callback) => {
-        try {
-            const response = await axios({
+            await axios({
                 method  : "POST",
-                url     : "/edit-team",
-                data    : requestData,
+                url     : "https://graph.facebook.com/v15.0/103881062566365/messages",
+                data    : msgObj,
+                headers : {
+                    "Authorization": "Bearer EABV8TM5UawMBAKR235i6VX4L15hS1cFsZAGgfYbKziEI9O6PYZCOXIWY8ZCvskm2VIfhTHuUOrCbfJ88VaarneJ7xXIRN3M3DkoeBhu6lU3tak4sYMul8SUWAZCrZCe2pPZCiRHefDSUqycbbd3dRxFgFIDGgG3pAdCfjZBFZB317xzQxInkBmIi"
+                }
             });
-            return callback(response.data);
+            //return callback(100, null);  //response.messages
         } catch (error) {
-            return callback(error);
-            // console.error(error);
-        }
-    }
-    const memberAllotedHistory = async (requestData, callback) => {
-        try {
-            const response = await axios.post(`/memberAllotedHistory`, requestData);
-            return callback(response);
-        } catch (error) {
-            throw error;
+            console.log('error', error); 
+            //return callback(error);
         }
     } 
     export {
@@ -294,5 +268,5 @@
         ListAreaService, SingleAreaService, SingleDeviceService,
         ListDeviceService, DeleteDeviceService, ReassignDeviceService, DeviceDetailsService, DeviceAreaListService,
         UpdateDeviceService, DeviceAlertHistoryListService, SingleDeviceDataService,
-        SetDeviceParameterService, AddComment, Commentlist, DeviceNotificationCloseServices, AddMember, ListMember, MemberDetails, EditMember, AddTeam, TeamListData, TeamDetails, teamAllotedHistory, TeamMembers, EditTeam, memberAllotedHistory
+        SetDeviceParameterService, AddComment, Commentlist, DeviceNotificationCloseServices, AddMember, EditMember, postRequest, sendWhstpMsg
     }

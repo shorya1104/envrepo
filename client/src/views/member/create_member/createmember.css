@@ -76,10 +76,10 @@
   font-weight: 400;
 }
 
-.file__value:after {
+/* .file__value:after {
   content: "X";
   cursor: pointer;
-}
+} */
 
 .file__value:after:hover {
   color: white;

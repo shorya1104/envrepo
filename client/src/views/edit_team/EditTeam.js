@@ -8,7 +8,7 @@ import moment from "moment";
 import { toast } from "react-toastify"
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { EditTeam, ListMember, ListAreaService, TeamDetails, TeamMembers } from "../../@mock-api/data/datatable";
+import { postRequest } from "../../@mock-api/data/datatable";
 import { DEFAULT_USER } from "config";
 
 const Createteam = () => {
@@ -34,28 +34,29 @@ const Createteam = () => {
     };
     React.useEffect(() => {
         
-        TeamMembers({ teamId : id }, (res) => {
+        postRequest(`/teamMembers`, { teamId : id }, (res) => {
             let allotedOpt = [];
-            res.data.result.forEach( ( element ) => {
+            
+            res.result.forEach( ( element ) => {
                 
                 allotedOpt.push( { value: element.member_id, label: element.full_name}, );
             });
             setAllotedOpt(allotedOpt);
             values['members'] = allotedOpt;
         });
-        TeamDetails({ teamId : id }, (res) => {
+        postRequest(`/teamDetails`, { teamId : id }, (res) => {
             
-            values['team_id']         = res.data.result.team_id; 
-            values['team_name']       = res.data.result.team_name; 
-            values['location_id']     = res.data.result.location_id;
-            values['team_leader']     = res.data.result.team_leader_name;
-            values['team_leader_id']  = res.data.result.team_leader_data.split('__')[0];
-            values['team_leader_mob'] = res.data.result.team_leader_data.split('__')[1];
+            values['team_id']         = res.result.team_id; 
+            values['team_name']       = res.result.team_name; 
+            values['location_id']     = res.result.location_id;
+            values['team_leader']     = res.result.team_leader_name;
+            values['team_leader_id']  = res.result.team_leader_data.split('__')[0];
+            values['team_leader_mob'] = res.result.team_leader_data.split('__')[1];
         });
-        ListAreaService({ userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id }, (res) => {
+        postRequest(`/areaList`, { userid : sessionStorage.getItem("user_id")}, (res) => {
             
             let areaOpt = [];
-            res.data.result.areaList.forEach( (element, index) => {
+            res.result.areaList.forEach( (element, index) => {
                 if(values.location_id == element.AreaNumber){
                     values['location_index'] = index ;
                 }
@@ -63,11 +64,11 @@ const Createteam = () => {
             });
             setAreaOptions(areaOpt);
         });
-        ListMember({ userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id }, (res) => {
-            setMemberList(res.data.dataList.data);
+        postRequest(`/memberList`,{ userid : sessionStorage.getItem("user_id") }, (res) => {
+            setMemberList(res.dataList.data);
             
             let memberOpt = [];
-            res.data.dataList.data.forEach( (element, index) => {
+            res.dataList.data.forEach( (element, index) => {
                 if(values.team_leader == element.member_id) { 
                     values['team_leader_index'] = index ;
                 }
@@ -116,7 +117,7 @@ const Createteam = () => {
             errorReset(errors);
             return false ;
         }
-        EditTeam(values, (result) => {
+        postRequest("/edit-team", values, (result) => {
             (result.success == true) ? toast.success(result.message) : toast.error(result.message);
             if (result.success == true) {
                 formik.resetForm();
@@ -127,6 +128,9 @@ const Createteam = () => {
         });
         
     };
+    const back = () => {
+        history.push('/team/team_list');
+    }
     const formik = useFormik({ initialValues, onSubmit }); //validationSchema,
     const { handleSubmit, handleChange, values, touched, errors } = formik;
     let index = 0;
@@ -237,7 +241,7 @@ const Createteam = () => {
                                         </div>
                                     </Col>
                                     <Col lg="6" style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "3rem", }} >
-                                        <Button className="btn-icon btn-icon-end" variant="primary" type="reset" >
+                                        <Button className="btn-icon btn-icon-end" onClick={back} type="reset" >
                                             Cancel <CsLineIcons icon="chevron-right" />
                                         </Button> &nbsp;&nbsp;&nbsp;&nbsp;
                                         <Button className="btn-icon btn-icon-end" variant="primary" type="submit">

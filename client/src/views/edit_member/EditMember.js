@@ -11,11 +11,10 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { DEFAULT_USER } from "config";
 // import * as Yup from "yup";
 import { useFormik } from "formik";
-import { EditMember,  MemberDetails, } from "../../@mock-api/data/datatable";
+import { EditMember, postRequest} from "../../@mock-api/data/datatable";
 import { toast } from "react-toastify"
 import moment from "moment";
 import { useParams } from "react-router";
-
 
 const Createmember = () => {
     let { id } = useParams();
@@ -34,13 +33,16 @@ const Createmember = () => {
     const [emirates, setEmirates]   = useState('');
     const [visaFile, setVisaFile]   = useState('');
     const [insurance, setInsurance] = useState('');
-    const [details, SetDetails] = useState({});
 
-    const [callSetails, SetCallDetails] = useState(1);
+    const [passportName, setPassportName]   = useState();
+    const [emiratesName, setEmiratesName]   = useState('');
+    const [visaFileName, setVisaFileName]   = useState('');
+    const [insuranceName, setInsuranceName] = useState('');
+
 
     const initialValues = {
         userid                : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
-        first_name            : details.first_name,
+        first_name            : '',
         last_name             : '',
         email                 : '',
         mobile_no             : '',
@@ -180,45 +182,67 @@ const Createmember = () => {
             }
         });
     };
+    const getFileNames = (files) => {
+        
+        let filesName = [];
+        for (var k = 0; k < files.length; k++){
+            filesName.push(<>
+                <div class='file__value file_'>
+                    <div class='file__value--text'>{files[k].name}</div>
+                </div>
+            </>);
+        }
+        return filesName;
+    }
     const onFileChange = (event ) => {
         
+        if(event.target.files.length > 2){
+            toast.error('please select only 2 files');
+            return;
+        }
         if(event.target.name == 'passport'){
             setPassport(event.target.files);
+            setPassportName( getFileNames(event.target.files) );
+            
         }
         if(event.target.name == 'emirates'){
             setEmirates(event.target.files);
+            setEmiratesName(getFileNames(event.target.files) )
         }
         if(event.target.name == 'visa_file'){
             setVisaFile(event.target.files);
+            setVisaFileName(getFileNames(event.target.files) )
         }
         if(event.target.name == 'insurance'){
             setInsurance(event.target.files);
+            setInsuranceName(getFileNames(event.target.files) )
         }
     }
     const formik = useFormik({ initialValues, onSubmit }); // validationSchema,
     const { handleSubmit, handleChange, values, touched, errors } = formik;
     React.useEffect(() => {
-        MemberDetails({ memberId : id }, (res) => {
-           console.log('values', values);
-            values.first_name     = res.data.result.first_name;
-            values.last_name      = res.data.result.last_name;
-            values.email          = res.data.result.email;
-            values.official_email = res.data.result.official_email;
-            values.designation    = res.data.result.designation;
-            values.work_type      = res.data.result.work_type;
+        postRequest(`/memberDetails`, { memberId : id }, (res) => {
+           
+            values.first_name     = res.result.first_name;
+            values.last_name      = res.result.last_name;
+            values.email          = res.result.email;
+            values.official_email = res.result.official_email;
+            values.designation    = res.result.designation;
+            values.work_type      = res.result.work_type;
         
-            setMobileNo(res.data.result.mobile_no);
-            setOfficialMobileNo(res.data.result.official_mobile_no);
+            setMobileNo(res.result.mobile_no);
+            setOfficialMobileNo(res.result.official_mobile_no);
 
-            //SetDetails(res.data.result);
-            setPassportExpiry(new Date(moment(res.data.result.passport_expiry_date).format("MM/DD/YYYY")) );
-            setEmiratesExpiry(new Date(moment(res.data.result.emirates_expiry_date).format("MM/DD/YYYY")) );
-            setVisaExpiry(new Date(moment(res.data.result.visa_expiry_date).format("MM/DD/YYYY")) );
-            setInsuranceExpiry(new Date(moment(res.data.result.insurance_expiry_date).format("MM/DD/YYYY")) );
-
-            
+            setPassportExpiry(new Date(moment(res.result.passport_expiry_date).format("MM/DD/YYYY")) );
+            setEmiratesExpiry(new Date(moment(res.result.emirates_expiry_date).format("MM/DD/YYYY")) );
+            setVisaExpiry(new Date(moment(res.result.visa_expiry_date).format("MM/DD/YYYY")) );
+            setInsuranceExpiry(new Date(moment(res.result.insurance_expiry_date).format("MM/DD/YYYY")) );
+   
         });
-    }, [callSetails]);
+    }, []);
+    const back = () => {
+        history.push('/member/member_list');
+    }
     return (
         <>
             <div className="page-title-container">
@@ -300,28 +324,32 @@ const Createmember = () => {
                                     <Col lg="4" >
                                         <Form.Label> Passport Expiry </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={passportExpiry} onChange={(date) => setPassportExpiry(date)} minDate={new Date()} name="passportExpiry" />
+                                            <DatePicker className={"form-control"} selected={passportExpiry} onChange={(date) => setPassportExpiry(date)} name="passportExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.passport_expiry_date && touched.passport_expiry_date && <div className="d-block invalid-tooltip" >{errors.passport_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4" >
                                         <Form.Label> Emirates Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={emiratesExpiry} onChange={(date) => setEmiratesExpiry(date)} name="emiratesExpiry" />
+                                            <DatePicker className={"form-control"} selected={emiratesExpiry} onChange={(date) => setEmiratesExpiry(date)} name="emiratesExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.emirates_expiry_date && touched.emirates_expiry_date && <div className="d-block invalid-tooltip" >{errors.emirates_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4">
                                         <Form.Label> Visa Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={visaExpiry} onChange={(date) => setVisaExpiry(date)} name="visaExpiry" />
+                                            <DatePicker className={"form-control"} selected={visaExpiry} onChange={(date) => setVisaExpiry(date)} name="visaExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off' />
                                             { errors.visa_expiry_date && touched.visa_expiry_date && <div className="d-block invalid-tooltip" >{errors.visa_expiry_date}</div> }
                                         </div>
                                     </Col>
                                     <Col lg="4">
                                         <Form.Label> Insurance Expiry Date </Form.Label>
                                         <div>
-                                            <DatePicker className={"form-control"} selected={insuranceExpiry} onChange={(date) => setInsuranceExpiry(date)} name="insuranceExpiry" />
+                                            <DatePicker className={"form-control"} selected={insuranceExpiry} onChange={(date) => setInsuranceExpiry(date)} name="insuranceExpiry" minDate={new Date()}  
+                                            peekNextMonth showMonthDropdown showYearDropdown dropdownMode="select" autoComplete='off'  />
                                             { errors.insurance_expiry_date && touched.insurance_expiry_date && <div className="d-block invalid-tooltip" >{errors.insurance_expiry_date}</div> }
                                         </div>
                                     </Col>
@@ -339,6 +367,7 @@ const Createmember = () => {
                                                             Add Files
                                                         </label>
                                                     </div>
+                                                    {passportName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.passport && touched.passport && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.passport}</div> }
@@ -355,6 +384,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="emirates" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="emirates" onChange={onFileChange} />
                                                         <label className="file__input--label" for="emirates" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {emiratesName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.emirates && touched.emirates && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.emirates}</div> }
@@ -371,6 +401,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="visa_file" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="visa_file" onChange={onFileChange} />
                                                         <label className="file__input--label" for="visa_file" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {visaFileName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.visa_file && touched.visa_file && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.visa_file}</div> }
@@ -387,6 +418,7 @@ const Createmember = () => {
                                                         <input className="file__input--file" id="insurance" type="file" multiple="multiple" accept=".jpg,.png,.pdf,.doc" name="insurance" onChange={onFileChange} />
                                                         <label className="file__input--label" for="insurance" data-text-btn="Upload">Add Files</label>
                                                     </div>
+                                                    {insuranceName}
                                                     <h6 id="contents">File Supported:PDF,JPG,PNG,DOC</h6>
                                                 </div>
                                                 { errors.insurance && touched.insurance && <div className="d-block invalid-tooltip" style={{ left: '41%' }}>{errors.insurance}</div> }
@@ -394,7 +426,7 @@ const Createmember = () => {
                                         </div>
                                     </Col>
                                     <Col lg="6" style={{ width : "100%", display : "flex", justifyContent : "center", alignItems : "center", marginTop : "3rem", }} >
-                                        <Button className="btn-icon btn-icon-end" variant="primary" type="reset" >
+                                        <Button className="btn-icon btn-icon-end" onClick={back} type="reset" >
                                             Cancel <CsLineIcons icon="chevron-right" />
                                         </Button> &nbsp;&nbsp;&nbsp;&nbsp;
                                         <Button className="btn-icon btn-icon-end" variant="primary" type="submit"  >

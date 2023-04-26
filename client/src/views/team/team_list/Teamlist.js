@@ -1,8 +1,7 @@
     import React, { useState } from "react";
     import { NavLink } from "react-router-dom";
-    import Select from 'react-select'
-    import { Row, Col, Button, Modal, Form, Dropdown, Tooltip, OverlayTrigger, } from "react-bootstrap";
-
+    //import Select from 'react-select'
+    import { Row, Col, Form, Dropdown, Tooltip, OverlayTrigger, } from "react-bootstrap"; //Button, Modal, 
     import { useTable, useGlobalFilter, useSortBy, useAsyncDebounce, usePagination, } from "react-table";
     import HtmlHead from "components/html-head/HtmlHead";
     import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
@@ -10,9 +9,9 @@
     import EditIcon from "@mui/icons-material/Edit";
     import CsLineIcons from "cs-line-icons/CsLineIcons";
     import classNames from "classnames";
-    import { DEFAULT_USER } from "config";
+    //import { DEFAULT_USER } from "config";
     import "../../configure/parameters/ProductDetails.css";
-    import { TeamListData, } from "@mock-api/data/datatable"; //DeleteDeviceService, ListAreaService,
+    import { postRequest} from "@mock-api/data/datatable";   //DeleteDeviceService, ListAreaService,
     import Pagination from "Pagination";
 
     const ControlsSearch = ({ tableInstance }) => {
@@ -102,45 +101,30 @@
         const title       = "Team List";
         const description = "Ecommerce Discount Page";
         
-        const [itemPerPage, setItemPerpage]    = useState(10);
-        const [totalpage, setTotalpage]        = useState(0);
-        const [data, setNewData]               = useState([]);
-        const [state, setstate]                = React.useState({ currentPage: 1 });
-        const { currentPage }                  = state;
-
-        // const Listdatanew = (filter) => {
-        //     ListAreaService(filter, (res) => {
-        //         //setListData(res.data.result.areaList);
-        //     });
-        // };
-        // React.useEffect(() => {
-        //     Listdatanew({ userid: DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id });
-        // }, []);
+        const [itemPerPage, setItemPerpage] = useState(10);
+        const [totalpage, setTotalpage]     = useState(0);
+        const [data, setNewData]            = useState([]);
+        const [state, setstate]             = React.useState({ currentPage: 1 });
+        const { currentPage }               = state;
 
         const handlePagination = (current) => {
             setstate({ ...state, currentPage: current });
             alldatanew({
-                userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
+                userid : sessionStorage.getItem("user_id"),
                 page   : current,
                 limit  : itemPerPage,
             });
         };
-
         const alldatanew = (filter) => {
-            TeamListData(filter, (res) => {
-                if (res.data.results.totalrecoard > 0) {
-                    //setTotalrecoard(res.data.results.totalrecoard);
-                    //setTotalpage(res.data.results.totalpage);
-                    setNewData(res.data.results.dataList);
-                } else {
-                    //setFoundData(false);
-                }
+            postRequest(`/teamList`, filter, (res) => {
+                if (res.results.totalrecoard > 0) {
+                    setNewData(res.results.dataList);
+                } 
             });
         };
-
         React.useEffect(() => {
             alldatanew({
-                userid : DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
+                userid : sessionStorage.getItem("user_id"),
                 page   : currentPage,
                 limit  : itemPerPage,
             });
@@ -149,7 +133,7 @@
         // const deleteEvent = () => {
         //     DeleteDeviceService({ id: deleteid.id }, (res) => {
         //     alldatanew({
-        //         userid: DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
+        //         userid: sessionStorage.getItem("user_id"),
         //         page: currentPage,
         //         limit: itemPerPage,
         //     });
@@ -303,7 +287,7 @@
                                 setItemPerpage(Number(e));
                                 setstate({ ...state, currentPage: 1 });
                                 alldatanew({
-                                    userid: DEFAULT_USER.id == null ? sessionStorage.getItem("user_id") : DEFAULT_USER.id,
+                                    userid: sessionStorage.getItem("user_id") ,
                                     page: 1,
                                     limit: e,
                                 });

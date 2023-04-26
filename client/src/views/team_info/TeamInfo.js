@@ -14,8 +14,7 @@
     import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
     import ShareLocationOutlinedIcon from '@mui/icons-material/ShareLocationOutlined';
 
-    // import { DEFAULT_USER } from "config.js";
-    import { TeamDetails, teamAllotedHistory } from "@mock-api/data/datatable";
+    import { postRequest } from "@mock-api/data/datatable";
 
     const DeviceInfo = () => {
         let { id }                  = useParams();
@@ -24,22 +23,23 @@
         const [teamMembers, SetTeamMembers] = useState([]);
 
         React.useEffect(() => {
-            TeamDetails({ teamId : id }, (res) => {
+            postRequest(`/teamDetails`, { teamId : id }, (res) => {
                 
                 let objj = {
-                    team_id           : res.data.result.team_id,
-                    team_name         : res.data.result.team_id,
-                    team_leader       : res.data.result.team_leader,
-                    team_leader_email : res.data.result.team_leader_data.split('__')[0],
-                    team_leader_mob   : res.data.result.team_leader_data.split('__')[1],
-                    location_name     : res.data.result.location_name,
-                    member_count      : res.data.result.member_count
+                    team_id           : res.result.team_id,
+                    team_name         : res.result.team_id,
+                    team_leader       : res.result.team_leader,
+                    team_leader_email : res.result.team_leader_data.split('__')[0],
+                    team_leader_mob   : res.result.team_leader_data.split('__')[1],
+                    location_name     : res.result.location_name,
+                    member_count      : res.result.member_count,
+                    alloted_count     : res.result.alloted_count
                 }
                 SetDetails(objj);
             });
-            teamAllotedHistory({ teamId : id }, (res) => {
+            postRequest(`/teamAllotedHistory`, { teamId : id }, (res) => {
                 
-                SetTeamMembers(res.data.result);
+                SetTeamMembers(res.result);
             });
         }, []);
         return  (
@@ -227,7 +227,7 @@
                                                         paddingTop : "0.7rem",
                                                     }}
                                                 >
-                                                    -----
+                                                    {details.alloted_count} 
                                                 </div>
                                             </Col>
                                         </Row>

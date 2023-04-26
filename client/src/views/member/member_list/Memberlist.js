@@ -12,7 +12,7 @@
     import classNames from "classnames";
     import { DEFAULT_USER } from "config";
     import "../../configure/parameters/ProductDetails.css";
-    import { ListMember, } from "@mock-api/data/datatable";
+    import { postRequest} from "@mock-api/data/datatable";
     import Pagination from "Pagination";
 
     const ControlsSearch = ({ tableInstance }) => {
@@ -116,11 +116,11 @@
             });
         };
         const alldatanew = (filter) => {
-            ListMember(filter, (res) => {
-                if (res.data.results.totalrecoard > 0) {
-                    //setTotalrecoard(res.data.results.totalrecoard);
-                    setTotalpage(res.data.results.totalpage);
-                    setNewData(res.data.results.dataList);
+            postRequest(`/memberList`, filter, (res) => {
+                if (res.results.totalrecoard > 0) {
+                    
+                    setTotalpage(res.results.totalpage);
+                    setNewData(res.results.dataList);
                 } else {
                     setFoundData(false);
                 }
@@ -144,7 +144,7 @@
                 headerClassName : "text-muted text-small text-uppercase w-10 px-3",
                 Cell            : ({ cell }) => {
                     return (
-                        <NavLink to={`/team-information/${cell.row.original.member_id}`}>
+                        <NavLink to={`/member-information/${cell.row.original.member_id}`}>
                             {cell.row.original.member_id}
                         </NavLink>
                     );
