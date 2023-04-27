@@ -13,4 +13,5 @@ else:
     print("Directory does not exist")
     subprocess.run(["npm", "install"])
     subprocess.run(["npm", "run", "build"])
+    os.system("cp -R '{}' server/".format(dir_path))
 
