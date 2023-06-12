@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envdeployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: env
+      version: v1
+  template:
+    metadata:
+      name: envpod
+      labels:
+        app: env
+        version: v1
+    spec:
+      containers:
+        - name: envcontainer
+          image: shoryasngh/env:1.0
+          ports:
+            - containerPort: 8000
+              name: envport
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /env/api/ready
+              port: 8000
+            initialDelaySeconds: 15
+            timeoutSeconds: 20
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /env/api/live
+              port: 8000
+            initialDelaySeconds: 15
+            timeoutSeconds: 20
+            failureThreshold: 5
+          resources:
+            requests:
+              cpu: "0.5"
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1024Mi

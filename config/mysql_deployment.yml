@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name:  envmysqlreplicaset
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      dbName: mysql
+      version: "8.0.28"
+  template:
+    metadata:
+      name: envmysqlpod
+      labels:
+        dbName: mysql
+        version: "8.0.28"
+    spec:
+      # initContainers:
+        # Init containers are exactly like regular containers, except:
+          # - Init containers always run to completion.
+          # - Each init container must complete successfully before the next one starts.
+      containers:
+      - name:  mysqlcontainer
+        image:  mysql:8.0.28
+        # resources:
+        #   requests:
+        #     cpu: 300m
+        #     memory: 512Mi
+        #   limits:
+        #     cpu: 500m
+        #     memory: 1024Mi
+        # livenessProbe:
+        #   exec:
+        #     command:
+        #       - sh
+        #       - -c
+        #       - mysqladmin ping -h 127.0.0.1
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   exec:
+        #     command:
+        #       - sh
+        #       - -c
+        #       - mysql ping -h 127.0.0.1 -e "SELECT 1"
+        #   initialDelaySeconds: 5
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
+        #   periodSeconds: 10
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: envmysqlsecret
+        ports:
+        - containerPort:  3306
+          name:  mysqlport
+          protocol: TCP
+        volumeMounts:
+        - name: envmysqlvolume
+          mountPath: /var/lib/mysql
+      volumes:
+        - name: envmysqlvolume
+          persistentVolumeClaim:
+            claimName: envmysqlpvc
+      restartPolicy: Always
