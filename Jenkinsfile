@@ -19,7 +19,7 @@ stages{
     }
     stage('checkout'){
         steps{
-            git branch: 'main', credentialsId: 'github' url:'https://github.com/shorya1104/envrepo.git'
+            git branch: 'main', credentialsId: 'github', url: 'https://github.com/shorya1104/envrepo.git'
         }
     }
     stage('build and serve'){
