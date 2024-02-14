@@ -22,20 +22,12 @@ stages{
             git branch: 'main', credentialsId: 'github', url: 'https://github.com/shorya1104/envrepo.git'
         }
     }
-    stage('infrastructure'){
-        steps{
-            script{
-                /*python script*/
-                sh "sudo python3 infra.py"
-            }
-        }
-    }
     stage('build and serve'){
         steps{
             dir('client'){
             sh 'ls'
-            sh 'npm install --force'
-            sh 'npm run build'
+            sh 'unzip build.zip'
+            sh 'rm build.zip'
             sh 'mv build/ ../server'
             }
         }
