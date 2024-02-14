@@ -29,7 +29,7 @@ stages{
             sh 'sudo apt install unzip'
             sh 'unzip build.zip'
             sh 'rm build.zip'
-            sh 'mv -r build/ ../server'
+            sh 'mv  build/ ../server'
             //}
         }
     }
