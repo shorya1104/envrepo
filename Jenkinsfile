@@ -50,6 +50,7 @@ stages{
             sh '''
                 npm install
                 npm pack 
+                rm -r test
                 mkdir test
                 cp *.tgz test
             '''
