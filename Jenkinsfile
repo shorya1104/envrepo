@@ -22,14 +22,6 @@ stages{
             git branch: 'main', credentialsId: 'github' url:'https://github.com/shorya1104/envrepo.git'
         }
     }
-    // stage('infrastructure'){
-    //     steps{
-    //         script{
-    //             /*python script*/
-    //             sh "sudo python3 infra.py"
-    //         }
-    //     }
-    // }
     stage('build and serve'){
         steps{
             dir('client'){
@@ -79,16 +71,5 @@ stages{
             }
         }
        }
-    // stage('push artifact in repo'){
-    //     steps{
-    //         git branch: 'test', url:'https://github.com/shorya1104/envrepo.git'
-    //         sh 'cd ${workspace}/server/test'
-    //         sh 'git init'
-    //         sh 'git add --all'
-    //         sh 'git commit -m "push artfact in repo"'
-    //         sh 'git branch -M test'
-    //         sh ' git push -u origin test'
-    //     }
-    // }
   }
 }
