@@ -24,13 +24,13 @@ stages{
     }
     stage('build and serve'){
         steps{
-            dir('client'){
+            //dir('client'){
             sh 'ls'
             sh 'sudo apt install unzip'
             sh 'unzip build.zip'
             sh 'rm build.zip'
             sh 'mv build/ ../server'
-            }
+            //}
         }
     }
     
