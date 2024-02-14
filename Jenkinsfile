@@ -34,16 +34,16 @@ stages{
         }
     }
     
-    stage('prepare db'){
-        steps{
-            sh '''
-                sed -i "s|#dbusername#|$DB_USRNM|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
-                sed -i "s|#dbpassword#|$DB_PSSWD|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
-                sed -i "s|#dbname#|$DB_SCHEMA|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
-                sed -i "s|#dburl#|$DB_URL|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
-            '''
-        }
-    }
+    // stage('prepare db'){
+    //     steps{
+    //         sh '''
+    //             sed -i "s|#dbusername#|$DB_USRNM|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+    //             sed -i "s|#dbpassword#|$DB_PSSWD|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+    //             sed -i "s|#dbname#|$DB_SCHEMA|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+    //             sed -i "s|#dburl#|$DB_URL|g" /u01/jenkins/workspace/envtest/env_ci/server/.env
+    //         '''
+    //     }
+    // }
     stage('package'){
         steps{
             dir('server'){
